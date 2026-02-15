@@ -1,0 +1,28 @@
+import { Body, Controller, Post, Put, Param, UseGuards } from '@nestjs/common';
+import { RolesService } from './roles.service';
+import { CreateRolDto } from './dto/create-rol.dto';
+import { UpdateRolDto } from './dto/update-rol.dto';
+import { HasRoles } from '../auth/jwt/has-roles';
+import { JwtRole } from '../auth/jwt/jwt-role';
+import { JwtAuthGuard } from '../auth/jwt/jwt-auth.guard';
+import { JwtRolesGuard } from '../auth/jwt/jwt-roles.guard';
+
+@Controller('roles')
+export class RolesController {
+
+    constructor(private rolesService: RolesService) {}
+
+    @HasRoles(JwtRole.ADMIN)
+    @UseGuards(JwtAuthGuard, JwtRolesGuard)
+    @Post() // http://[address]/roles -> POST
+    create(@Body() rol: CreateRolDto) {
+        return this.rolesService.create(rol);
+    }
+
+    @HasRoles(JwtRole.ADMIN)
+    @UseGuards(JwtAuthGuard, JwtRolesGuard)
+    @Put(':id') // http://[address]/roles/:id -> PUT
+    update(@Param('id') id: string, @Body() updateRolDto: UpdateRolDto) {
+        return this.rolesService.update(id, updateRolDto);
+    }
+}
